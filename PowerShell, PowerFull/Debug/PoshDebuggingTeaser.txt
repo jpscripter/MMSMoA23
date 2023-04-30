@@ -1,0 +1,12 @@
+
+Your session info:
+Title: PowerShell Advanced Troubleshooting
+
+Description:
+    PowerShell has revolutionized systems management and been a gateway for thousands to learn the basics of computer programming, but what do you do when it isn’t behaving as expected. When this happens, it can lead to hours of troubleshooting and a blinding rage, but is there an easier way to figure out what is happening? Fortunately, there are a lot of tools built into PowerShell that can make troubleshooting and debugging PowerShell a more pleasant experience. In this session, we will look at the PowerShell debugger and how to it locally and remotely. 
+
+What you will learn:
+The basic commands and steps for debugging PowerShell.
+Setup VSCode to allow integrated debugging of PowerShell scripts.
+How to debug scripts running as system or on remote system.
+Secure your scripts and prevent others from hijacking your PowerShell session.
