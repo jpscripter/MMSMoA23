@@ -1,3 +1,12 @@
+# Order and race conditions
+
+# Parallel
+1..10 | ForEach-Object -Parallel {
+    $random = Get-Random -Minimum 1 -Maximum 5
+    Start-Sleep -second $random
+    Write-Host "Processing $Pid $_"
+} 
+
 $ScriptBlock = 
 {
 param($times)
@@ -8,7 +17,6 @@ param($times)
         [double] $oddfactorial=1
         [double] $pi = 1
         [double] $previouspi = 0
-
         while ($previouspi -ne $pi) {
             $previouspi = $pi
             $factorial *= $num
@@ -20,7 +28,8 @@ param($times)
     }
 }
 
-foreach ($Threads in (5..30)){
+## more threads might not mean faster
+foreach ($Threads in (2..20)){
     $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
     $initialSessionState = [initialsessionstate]::CreateDefault() # Enter PSSnapins here
     $MINRunspaces = 1
@@ -46,11 +55,26 @@ foreach ($Threads in (5..30)){
 }
 
 
-# Parallel
-1..10 | ForEach-Object -Parallel {
-    $random = Get-Random -Minimum 1 -Maximum 5
-    Start-Sleep -second $random
-    Write-Host "Processing $Pid $_"
+#Synchronized hashtables
+$hash = [hashtable]::Synchronized(@{})
+
+$initialSessionState = [initialsessionstate]::CreateDefault() # Enter PSSnapins here
+$MINRunspaces = 1
+$MAXRunspaces = 2
+$RunSpacePool = [RunspaceFactory]::CreateRunspacePool($minRunspaces,$MAXRunspaces,$initialSessionState,$Host)
+$RunSpacePool.Open()
+$ScriptBlock = {
+    param(
+        $hash
+    )
+    $testVariable = $true
+    $hash.add('New',$true)
 }
+$PowerShell = [PowerShell]::Create()
+$PowerShell.Runspacepool = $RunSpacePool
+$Null = $PowerShell.AddScript($ScriptBlock)
+$Null = $PowerShell.AddParameter('hash',$hash)
+$Null = $PowerShell.Invoke()
 
-
+$testVariable
+$hash
